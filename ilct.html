@@ -1,458 +1,228 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>国際学習能力検定 特設サイト</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      --main-bg: #f5f8fc;
-      --main-color: #123456;
-      --accent: #2b6fff;
-      --accent-soft: #e3edff;
-      --text-main: #222;
-      --text-sub: #666;
-    }
+<meta charset="UTF-8">
+<title>国際学習能力検定｜International Learning Competency Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { margin:0; font-family:"Yu Gothic", Arial, sans-serif; color:#333; }
 
-    * {
-      box-sizing: border-box;
-      scroll-behavior: smooth;
-    }
+  /* ▼ 動画ヒーロー ▼ */
+  .hero {
+    position:relative;
+    width:100%;
+    height:480px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#fff;
+  }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
-        "Segoe UI", "Yu Gothic", "游ゴシック体", "Meiryo", sans-serif;
-      background: var(--main-bg);
-      color: var(--text-main);
-    }
+  .hero video {
+    position:absolute;
+    top:50%;
+    left:50%;
+    min-width:100%;
+    min-height:100%;
+    width:auto;
+    height:auto;
+    transform:translate(-50%, -50%);
+    z-index:-1;
+    filter:brightness(60%);
+  }
 
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background: #ffffffdd;
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      border-bottom: 1px solid #ddd;
-      z-index: 100;
-    }
+  .hero h1 {
+    font-size:48px;
+    font-weight:bold;
+    margin-bottom:16px;
+    text-shadow:0 0 12px rgba(0,0,0,0.6);
+  }
 
-    .logo {
-      font-weight: 700;
-      font-size: 16px;
-      color: var(--main-color);
-    }
+  .hero p {
+    font-size:22px;
+    line-height:1.8;
+    max-width:900px;
+    margin:0 auto 20px;
+    text-shadow:0 0 10px rgba(0,0,0,0.6);
+  }
 
-    nav a {
-      margin-left: 16px;
-      font-size: 14px;
-      text-decoration: none;
-      color: var(--text-sub);
-      transition: color 0.2s;
-    }
+  .btn {
+    display:inline-block;
+    background:#ffffff;
+    color:#004b9b;
+    padding:14px 28px;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:20px;
+    font-weight:bold;
+    margin:8px;
+  }
 
-    nav a:hover {
-      color: var(--accent);
-    }
+  /* ▼ セクション ▼ */
+  .section {
+    max-width:1100px;
+    margin:60px auto;
+    padding:0 20px;
+  }
 
-    main {
-      padding-top: 80px;
-      max-width: 960px;
-      margin: 0 auto;
-      padding-bottom: 80px;
-    }
+  .section h2 {
+    font-size:32px;
+    border-left:6px solid #004b9b;
+    padding-left:14px;
+    margin-bottom:24px;
+  }
 
-    section {
-      margin: 40px 16px;
-      padding: 32px 24px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
+  .cols {
+    display:flex;
+    flex-wrap:wrap;
+    gap:30px;
+  }
 
-    section.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .col {
+    flex:1 1 300px;
+    font-size:20px;
+    line-height:1.8;
+  }
 
-    h1, h2 {
-      margin-top: 0;
-      color: var(--main-color);
-      letter-spacing: 0.05em;
-    }
+  .col h3 {
+    font-size:24px;
+    color:#004b9b;
+    margin-bottom:12px;
+  }
 
-    h1 {
-      font-size: 26px;
-    }
+  .col ul {
+    padding-left:22px;
+    margin:0;
+  }
 
-    h2 {
-      font-size: 20px;
-      border-left: 4px solid var(--accent);
-      padding-left: 8px;
-      margin-bottom: 16px;
-    }
+  .notice {
+    background:#fff8e5;
+    border:1px solid #f0d28a;
+    padding:20px;
+    border-radius:6px;
+    margin-bottom:20px;
+    font-size:20px;
+    line-height:1.8;
+  }
 
-    p {
-      line-height: 1.8;
-      font-size: 14px;
-      color: var(--text-main);
-    }
+  .notice a {
+    color:#004b9b;
+    text-decoration:none;
+    font-weight:bold;
+  }
 
-    .hero {
-      text-align: center;
-      background: linear-gradient(135deg, #ffffff, var(--accent-soft));
-    }
-
-    .hero-copy-main {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .hero-copy-sub {
-      font-size: 14px;
-      color: var(--text-sub);
-      margin-bottom: 24px;
-    }
-
-    .btn-group {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: transform 0.15s ease, box-shadow 0.15s ease,
-        background 0.2s ease, color 0.2s ease;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(43, 111, 255, 0.35);
-    }
-
-    .btn-secondary {
-      background: #fff;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .card {
-      border-radius: 10px;
-      border: 1px solid #eee;
-      padding: 16px;
-      background: #fafbff;
-    }
-
-    .card-title {
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--main-color);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
-
-    .flow {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
-
-    .flow li {
-      margin-bottom: 8px;
-      font-size: 14px;
-      position: relative;
-      padding-left: 24px;
-    }
-
-    .flow li::before {
-      content: "▶";
-      position: absolute;
-      left: 0;
-      top: 0;
-      font-size: 11px;
-      color: var(--accent);
-      transform: translateY(3px);
-    }
-
-    .tagline {
-      font-size: 12px;
-      color: var(--text-sub);
-      margin-top: 4px;
-    }
-
-    .notice-list {
-      list-style: none;
-      padding-left: 0;
-      font-size: 13px;
-    }
-
-    .notice-list li {
-      margin-bottom: 4px;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 11px;
-      color: var(--text-sub);
-      padding: 16px;
-    }
-
-    @media (max-width: 600px) {
-      header {
-        padding: 0 12px;
-      }
-      main {
-        padding-top: 72px;
-      }
-      section {
-        margin: 24px 8px;
-        padding: 24px 16px;
-      }
-      .hero-copy-main {
-        font-size: 20px;
-      }
-    }
-  </style>
+  footer {
+    text-align:center;
+    padding:30px;
+    font-size:16px;
+    color:#777;
+    border-top:1px solid #ddd;
+    margin-top:60px;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="logo">国際学習能力検定 特設サイト</div>
-    <nav>
-      <a href="#about">検定概要</a>
-      <a href="#flow">受験の流れ</a>
-      <a href="#sample">サンプル問題</a>
-      <a href="#apply">受験申込</a>
-    </nav>
-  </header>
 
-  <main>
-    <!-- HERO -->
-    <section class="hero">
-      <h1>国際学習能力検定（ILCT）</h1>
-      <div class="hero-copy-main">学びの力を、世界基準で測る。</div>
-      <div class="hero-copy-sub">
-        成績や偏差値だけでは見えない、<br>
-        「考える力」「理解する力」「伝える力」を、ひとつの指標に。
-      </div>
-      <div class="btn-group">
-        <button class="btn btn-primary" onclick="scrollToSection('apply')">
-          受験申込はこちら
-        </button>
-        <button class="btn btn-secondary" onclick="scrollToSection('about')">
-          検定概要を見る
-        </button>
-      </div>
-    </section>
+<!-- ▼▼▼ 動画背景ヒーロー ▼▼▼ -->
+<div class="hero">
+  <video autoplay muted loop playsinline>
+    <source src="https://cdn.pixabay.com/video/2021/09/15/89837-610676987_large.mp4" type="video/mp4">
+  </video>
 
-    <!-- 検定概要 -->
-    <section id="about">
-      <h2>検定概要</h2>
-      <p>
-        国際学習能力検定（ILCT）は、知識量だけでなく、<br>
-        <strong>理解力・思考力・表現力・問題解決力</strong>といった「学びの土台」を総合的に評価する検定です。<br>
-        年齢や学年に依存せず、学習者一人ひとりの「今の学びの力」を可視化することを目的としています。
-      </p>
+  <div>
+    <h1>世界を学ぶ力を、すべての子どもたちへ。</h1>
+    <p>
+      国際学習能力検定は、国際社会を理解し、自分の力で考える「学習力」を育てる教育検定です。<br>
+      国際理解教育・総合学習・自治体の学習支援事業と連携して活用できます。
+    </p>
+    <a class="btn" href="#about">検定概要を見る</a>
+  </div>
+</div>
+<!-- ▲▲▲ 動画背景ヒーロー ▲▲▲ -->
 
-      <div class="grid">
-        <div class="card">
-          <div class="badge">グレード構成</div>
-          <div class="card-title">G1〜G6の6段階</div>
-          <p>
-            G1：入門 / G2：基礎 / G3：標準<br>
-            G4：中級 / G5：上級 / G6：最上級
-          </p>
-        </div>
-        <div class="card">
-          <div class="badge">対象</div>
-          <div class="card-title">小学生〜社会人まで</div>
-          <p>
-            学年ではなく「学習力のレベル」で受験グレードを選択できます。<br>
-            塾・学校・個人受験いずれにも対応。
-          </p>
-        </div>
-        <div class="card">
-          <div class="badge">受験料</div>
-          <div class="card-title">誰もが受けやすい価格設定</div>
-          <p>
-            G1：1,500円 / G2：1,800円 / G3：2,200円<br>
-            G4：2,700円 / G5：3,300円 / G6：3,900円
-          </p>
-        </div>
-      </div>
-    </section>
+<!-- ▼ お知らせ ▼ -->
+<div class="section">
+  <h2>お知らせ</h2>
+  <div class="notice">
+    ・<a href="https://www.iesaa.jp" target="_blank">2026年度 国際学習能力検定 実施概要を公開しました</a><br>
+    ・<a href="https://www.iesaa.jp" target="_blank">オンライン受験の申込受付を開始しました</a><br>
+    ・<a href="https://www.iesaa.jp" target="_blank">学校・自治体向け団体導入ガイドを公開しました</a><br>
+    ・<a href="mailto:j.shionoiri0106@icloud.com">教育寄附の使途としての導入をご検討の自治体様はこちら</a>
+  </div>
+</div>
 
-    <!-- 受験の流れ -->
-    <section id="flow">
-      <h2>受験の流れ</h2>
-      <ul class="flow">
-        <li>
-          申込  
-          <div class="tagline">特設サイトからオンラインで申込。団体申込にも対応。</div>
-        </li>
-        <li>
-          受験票発行  
-          <div class="tagline">メールまたは所属団体経由で受験票を配布。</div>
-        </li>
-        <li>
-          試験当日  
-          <div class="tagline">安全・衛生に配慮した会場で試験を実施。</div>
-        </li>
-        <li>
-          成績通知  
-          <div class="tagline">学習力プロファイルとして、強みと課題をフィードバック。</div>
-        </li>
-        <li>
-          次回受験・学習支援  
-          <div class="tagline">次に受けるべきグレードや学習の方向性を提案。</div>
-        </li>
+<!-- ▼ 検定概要 ▼ -->
+<div class="section" id="about">
+  <h2>国際学習能力検定とは</h2>
+  <div class="cols">
+    <div class="col">
+      <h3>目的</h3>
+      <ul>
+        <li>国際社会の基礎理解を深める</li>
+        <li>多文化理解・共生の姿勢を育てる</li>
+        <li>情報整理・思考力・判断力を伸ばす</li>
+        <li>学習意欲を高め、学びの選択肢を広げる</li>
       </ul>
-    </section>
-
-    <!-- サンプル問題 -->
-    <section id="sample">
-      <h2>サンプル問題</h2>
-      <p>
-        ILCTでは、「正解を覚える力」ではなく、「考えるプロセス」を重視した問題を出題します。<br>
-        以下は一例です。
-      </p>
-      <div class="card">
-        <div class="badge">例：G3レベル</div>
-        <div class="card-title">文章を読んで、要点を整理する問題</div>
-        <p>
-          ある文章を読み、「筆者が一番伝えたいこと」を一文でまとめる問題など。<br>
-          読解力と要約力を同時に測ります。
-        </p>
-      </div>
-      <div class="card" style="margin-top: 12px;">
-        <div class="badge">例：G5レベル</div>
-        <div class="card-title">図表を読み取り、自分の考えを述べる問題</div>
-        <p>
-          グラフや表の情報を整理し、「そこから言えること」を論理的に説明する問題。<br>
-          分析力・論理的思考力・表現力を総合的に評価します。
-        </p>
-      </div>
-    </section>
-
-    <!-- 受験申込 -->
-    <section id="apply">
-      <h2>受験申込</h2>
-      <p>
-        受験申込は、所属している塾・学校経由、または個人でのオンライン申込が可能です。<br>
-        以下は仮のフォームイメージです（実装時はサーバ側処理と連携してください）。
-      </p>
-
-      <form onsubmit="handleFakeSubmit(event)">
-        <div style="margin-bottom: 8px;">
-          <label>お名前<br>
-            <input type="text" name="name" style="width: 100%; padding: 8px; margin-top: 4px;">
-          </label>
-        </div>
-        <div style="margin-bottom: 8px;">
-          <label>メールアドレス<br>
-            <input type="email" name="email" style="width: 100%; padding: 8px; margin-top: 4px;">
-          </label>
-        </div>
-        <div style="margin-bottom: 8px;">
-          <label>希望グレード<br>
-            <select name="grade" style="width: 100%; padding: 8px; margin-top: 4px;">
-              <option value="">選択してください</option>
-              <option>G1（入門）</option>
-              <option>G2（基礎）</option>
-              <option>G3（標準）</option>
-              <option>G4（中級）</option>
-              <option>G5（上級）</option>
-              <option>G6（最上級）</option>
-            </select>
-          </label>
-        </div>
-        <button class="btn btn-primary" type="submit">この内容で申込（デモ）</button>
-      </form>
-      <p class="tagline">
-        ※このフォームはデモ用です。実際の運用では、申込システムと連携してください。
-      </p>
-    </section>
-
-    <!-- お知らせ -->
-    <section id="news">
-      <h2>お知らせ</h2>
-      <ul class="notice-list">
-        <li>・次回実施予定：202X年X月X日（全国一斉）</li>
-        <li>・団体受験の事前相談を受け付けています。</li>
-        <li>・特設サイトの内容は随時更新されます。</li>
+    </div>
+    <div class="col">
+      <h3>内容</h3>
+      <ul>
+        <li>世界の国・地域、国際機関、SDGs</li>
+        <li>文化・宗教・生活習慣の理解</li>
+        <li>国際課題（環境・貧困・教育格差）</li>
+        <li>ケーススタディによる思考力評価</li>
       </ul>
-    </section>
-  </main>
+    </div>
+    <div class="col">
+      <h3>試験形式</h3>
+      <ul>
+        <li>選択式 30〜40問</li>
+        <li>試験時間：45分</li>
+        <li>オンライン受験（紙試験可）</li>
+        <li>合格証（PDF／紙）発行</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-  <footer>
-    国際教育支援評価協会 / 日本総合学習研究所（ILER）<br>
-    © International Learning Competency Test
-  </footer>
+<!-- ▼ 対象 ▼ -->
+<div class="section">
+  <h2>対象</h2>
+  <p style="font-size:20px; line-height:1.8;">
+    小学生（高学年）〜高校生を主な対象としています。<br>
+    学校・自治体の教育方針に合わせて対象学年の調整が可能です。
+  </p>
+</div>
 
-  <script>
-    // セクションのフェードイン
-    const sections = document.querySelectorAll("section");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-    sections.forEach((sec) => observer.observe(sec));
+<!-- ▼ 学校・自治体向け ▼ -->
+<div class="section">
+  <h2>学校・自治体の方へ</h2>
+  <div class="notice">
+    国際理解教育・総合学習・学習支援事業など、既存の教育活動と組み合わせて導入できます。<br>
+    団体受験・寄附金による受験料補助など、導入形態に応じたご提案が可能です。
+  </div>
+</div>
 
-    // スクロール関数
-    function scrollToSection(id) {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }
+<!-- ▼ 受験案内 ▼ -->
+<div class="section" id="apply">
+  <h2>受験案内</h2>
+  <p style="font-size:20px; line-height:1.8;">
+    受験方法・日程・申込方法などの詳細は、準備が整い次第公開いたします。<br>
+    団体受験をご希望の学校・自治体の方はお問い合わせください。
+  </p>
+  <p style="font-size:20px; line-height:1.8;">
+    【お問い合わせ】<br>
+    国際教育支援評価協会（IESAA）<br>
+    メール：j.shionoiri0106@icloud.com<br>
+    ホームページ：https://www.iesaa.jp
+  </p>
+</div>
 
-    // デモ用フォーム送信
-    function handleFakeSubmit(e) {
-      e.preventDefault();
-      alert("これはデモ用の申込フォームです。\n実際の申込処理はサーバ側と連携して実装してください。");
-    }
-  </script>
+<footer>
+  国際学習能力検定｜運営：国際教育支援評価協会（IESAA）／© 2026 IESAA
+</footer>
+
 </body>
 </html>
