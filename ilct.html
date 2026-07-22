@@ -7,140 +7,102 @@
 <style>
   body { margin:0; font-family:"Yu Gothic", Arial, sans-serif; color:#333; }
 
-  /* ▼ 動画ヒーロー ▼ */
+  /* ▼ トップ動画（YouTube横動画サイズ） ▼ */
   .hero {
-    position:relative;
-    width:100%;
-    height:480px;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    color:#fff;
+    position: relative;
+    width: 100%;
+    max-width: 960px; /* YouTube横幅に近い */
+    margin: 0 auto;
+    aspect-ratio: 16 / 9; /* YouTubeと同じ比率 */
+    overflow: hidden;
   }
 
   .hero video {
-    position:absolute;
-    top:50%;
-    left:50%;
-    min-width:100%;
-    min-height:100%;
-    width:auto;
-    height:auto;
-    transform:translate(-50%, -50%);
-    z-index:-1;
-    filter:brightness(60%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 黒帯なしで綺麗にフィット */
+    filter: brightness(70%);
   }
 
-  .hero h1 {
-    font-size:48px;
-    font-weight:bold;
-    margin-bottom:16px;
-    text-shadow:0 0 12px rgba(0,0,0,0.6);
-  }
-
-  .hero p {
-    font-size:22px;
-    line-height:1.8;
-    max-width:900px;
-    margin:0 auto 20px;
-    text-shadow:0 0 10px rgba(0,0,0,0.6);
-  }
-
-  .btn {
-    display:inline-block;
-    background:#ffffff;
-    color:#004b9b;
-    padding:14px 28px;
-    border-radius:6px;
-    text-decoration:none;
-    font-size:20px;
-    font-weight:bold;
-    margin:8px;
+  /* スマホでは自動で縮む */
+  @media (max-width: 768px) {
+    .hero {
+      max-width: 100%;
+    }
   }
 
   /* ▼ セクション ▼ */
   .section {
-    max-width:1100px;
-    margin:60px auto;
-    padding:0 20px;
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
   }
 
   .section h2 {
-    font-size:32px;
-    border-left:6px solid #004b9b;
-    padding-left:14px;
-    margin-bottom:24px;
+    font-size: 32px;
+    border-left: 6px solid #004b9b;
+    padding-left: 14px;
+    margin-bottom: 24px;
   }
 
   .cols {
-    display:flex;
-    flex-wrap:wrap;
-    gap:30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
   }
 
   .col {
-    flex:1 1 300px;
-    font-size:20px;
-    line-height:1.8;
+    flex: 1 1 300px;
+    font-size: 20px;
+    line-height: 1.8;
   }
 
   .col h3 {
-    font-size:24px;
-    color:#004b9b;
-    margin-bottom:12px;
+    font-size: 24px;
+    color: #004b9b;
+    margin-bottom: 12px;
   }
 
   .col ul {
-    padding-left:22px;
-    margin:0;
+    padding-left: 22px;
+    margin: 0;
   }
 
   .notice {
-    background:#fff8e5;
-    border:1px solid #f0d28a;
-    padding:20px;
-    border-radius:6px;
-    margin-bottom:20px;
-    font-size:20px;
-    line-height:1.8;
+    background: #fff8e5;
+    border: 1px solid #f0d28a;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    line-height: 1.8;
   }
 
   .notice a {
-    color:#004b9b;
-    text-decoration:none;
-    font-weight:bold;
+    color: #004b9b;
+    text-decoration: none;
+    font-weight: bold;
   }
 
   footer {
-    text-align:center;
-    padding:30px;
-    font-size:16px;
-    color:#777;
-    border-top:1px solid #ddd;
-    margin-top:60px;
+    text-align: center;
+    padding: 30px;
+    font-size: 16px;
+    color: #777;
+    border-top: 1px solid #ddd;
+    margin-top: 60px;
   }
 </style>
 </head>
 <body>
 
-<!-- ▼▼▼ 動画背景ヒーロー ▼▼▼ -->
+<!-- ▼▼▼ トップ動画（テキストなし） ▼▼▼ -->
 <div class="hero">
   <video autoplay muted loop playsinline>
     <source src="topmov.mp4" type="video/mp4">
   </video>
-
-  <div>
-    <h1>世界を学ぶ力を、すべての子どもたちへ。</h1>
-    <p>
-      国際学習能力検定は、国際社会を理解し、自分の力で考える「学習力」を育てる教育検定です。<br>
-      国際理解教育・総合学習・自治体の学習支援事業と連携して活用できます。
-    </p>
-    <a class="btn" href="#about">検定概要を見る</a>
-  </div>
 </div>
-<!-- ▲▲▲ 動画背景ヒーロー ▲▲▲ -->
+<!-- ▲▲▲ トップ動画 ▲▲▲ -->
 
 <!-- ▼ お知らせ ▼ -->
 <div class="section">
