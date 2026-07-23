@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 受験者ポータル｜ダッシュボード</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    margin:0;
+    font-family:"Yu Gothic", Arial, sans-serif;
+    background:#f5f7fb;
+    color:#333;
+  }
+
+  /* ヘッダー */
+  .header {
+    background:#004b9b;
+    color:#fff;
+    padding:20px;
+    font-size:24px;
+    font-weight:bold;
+    text-align:center;
+  }
+
+  /* メインコンテンツ */
+  .container {
+    max-width:1100px;
+    margin:40px auto;
+    padding:0 20px;
+  }
+
+  .welcome {
+    font-size:26px;
+    margin-bottom:20px;
+    font-weight:bold;
+    color:#004b9b;
+  }
+
+  .user-info {
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom:30px;
+    font-size:20px;
+    line-height:1.8;
+  }
+
+  /* メニューカード */
+  .cards {
+    display:flex;
+    flex-wrap:wrap;
+    gap:25px;
+  }
+
+  .card {
+    flex:1 1 300px;
+    background:#fff;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    text-decoration:none;
+    color:#333;
+    transition:0.3s;
+  }
+
+  .card:hover {
+    transform:translateY(-6px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  }
+
+  .card h3 {
+    font-size:22px;
+    margin-bottom:12px;
+    color:#004b9b;
+  }
+
+  .card p {
+    font-size:18px;
+    line-height:1.6;
+  }
+
+  /* お知らせ */
+  .notice {
+    margin-top:40px;
+    background:#eef4ff;
+    padding:20px;
+    border-left:6px solid #004b9b;
+    border-radius:6px;
+    font-size:20px;
+    line-height:1.8;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  ILCT 受験者ポータル
+</div>
+
+<div class="container">
+
+  <!-- ▼ 受験者情報 ▼ -->
+  <div class="welcome">ようこそ、受験者ダッシュボードへ</div>
+
+  <div class="user-info">
+    <strong>氏名：</strong>（ログインした受験者名）<br>
+    <strong>受験者ID：</strong> ILCT-2026-XXXXXX<br>
+    <strong>現在の受験状況：</strong> 未申込<br>
+  </div>
+
+  <!-- ▼ メニューカード ▼ -->
+  <div class="cards">
+
+    <a href="apply.html" class="card">
+      <h3>受験申込</h3>
+      <p>G1〜G6 の受験申込ができます。</p>
+    </a>
+
+    <a href="exam-info.html" class="card">
+      <h3>試験情報</h3>
+      <p>出題範囲・試験時間・持ち物などを確認できます。</p>
+    </a>
+
+    <a href="my-exams.html" class="card">
+      <h3>申込履歴</h3>
+      <p>過去の申込内容を確認できます。</p>
+    </a>
+
+    <a href="results.html" class="card">
+      <h3>成績閲覧</h3>
+      <p>PDFの成績表を確認できます。</p>
+    </a>
+
+    <a href="profile.html" class="card">
+      <h3>プロフィール</h3>
+      <p>氏名・学校・学年などを編集できます。</p>
+    </a>
+
+  </div>
+
+  <!-- ▼ お知らせ ▼ -->
+  <div class="notice">
+    ・2026年度 国際学習能力検定の申込受付を開始しました。<br>
+    ・紙試験の実施方法を公開しました。<br>
+    ・成績返却は受験後 2〜3 週間を予定しています。
+  </div>
+
+</div>
+
+</body>
+</html>
