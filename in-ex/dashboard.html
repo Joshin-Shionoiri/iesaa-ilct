@@ -8,8 +8,10 @@
   body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
   .header { background:#004b9b; color:#fff; padding:20px; text-align:center; font-size:24px; }
   .container { max-width:1100px; margin:40px auto; padding:20px; }
-  .info { background:#fff; padding:20px; border-radius:10px;
-          box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:30px; }
+
+  .section { background:#fff; padding:20px; border-radius:10px;
+             box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:30px; }
+
   .cards { display:flex; flex-wrap:wrap; gap:25px; }
   .card { flex:1 1 300px; background:#fff; padding:25px; border-radius:12px;
           box-shadow:0 4px 12px rgba(0,0,0,0.1); text-decoration:none; color:#333; }
@@ -21,15 +23,36 @@
 
 <div class="container">
 
-  <div class="info">
+  <!-- 受験者情報 -->
+  <div class="section">
     <h3>受験者情報</h3>
     <p>氏名：<span id="userName"></span></p>
     <p>受験者ID：<span id="userId"></span></p>
   </div>
 
+  <!-- 最新申込状況 -->
+  <div class="section">
+    <h3>最新の申込状況</h3>
+    <div id="latestApplication">読み込み中...</div>
+  </div>
+
+  <!-- お知らせ -->
+  <div class="section">
+    <h3>お知らせ</h3>
+    <div id="newsList">読み込み中...</div>
+  </div>
+
+  <!-- 次回試験案内 -->
+  <div class="section">
+    <h3>次回試験案内</h3>
+    <p>次回試験日：2026年 8月 10日</p>
+    <p>申込期間：2026年 7月 1日 ～ 7月 31日</p>
+    <p>会場：東京・埼玉・千葉・神奈川</p>
+  </div>
+
+  <!-- メニュー -->
   <div class="cards">
     <a href="apply.html" class="card">受験申込</a>
-    <a href="exam-info.html" class="card">試験情報</a>
     <a href="my-exams.html" class="card">申込履歴</a>
     <a href="results.html" class="card">成績閲覧</a>
     <a href="profile.html" class="card">プロフィール編集</a>
@@ -39,7 +62,8 @@
 
 <script type="module">
   import { auth, db } from "./firebase.js";
-  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+  import { collection, query, where, orderBy, limit, getDocs } 
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
   auth.onAuthStateChanged(async (user) => {
     if (!user) {
@@ -47,11 +71,46 @@
       return;
     }
 
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const data = userDoc.data();
-
-    document.getElementById("userName").innerText = data.name;
+    document.getElementById("userName").innerText = user.displayName || "未設定";
     document.getElementById("userId").innerText = user.uid;
+
+    // ▼ 最新申込状況
+    const appQuery = query(
+      collection(db, "applications"),
+      where("uid", "==", user.uid),
+      orderBy("created_at", "desc"),
+      limit(1)
+    );
+
+    const appSnap = await getDocs(appQuery);
+    const latestDiv = document.getElementById("latestApplication");
+
+    if (appSnap.empty) {
+      latestDiv.innerHTML = "申込はまだありません。";
+    } else {
+      const data = appSnap.docs[0].data();
+      latestDiv.innerHTML = `
+        <p>受験級：${data.level}</p>
+        <p>試験日：${data.examDate}</p>
+        <p>会場：${data.venue}</p>
+      `;
+    }
+
+    // ▼ お知らせ一覧
+    const newsSnap = await getDocs(collection(db, "news"));
+    const newsDiv = document.getElementById("newsList");
+
+    if (newsSnap.empty) {
+      newsDiv.innerHTML = "現在お知らせはありません。";
+    } else {
+      newsDiv.innerHTML = "";
+      newsSnap.forEach((doc) => {
+        const n = doc.data();
+        newsDiv.innerHTML += `
+          <p><strong>${n.title}</strong><br>${n.body}</p><hr>
+        `;
+      });
+    }
   });
 </script>
 
