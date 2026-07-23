@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 受験申込</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
+  .box { max-width:520px; margin:60px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
+  label { font-size:18px; margin-bottom:8px; display:block; }
+  select, input { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
+                  border:1px solid #ccc; border-radius:8px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>受験申込</h2>
+
+  <label>受験級</label>
+  <select id="level">
+    <option value="1級">1級</option>
+    <option value="2級">2級</option>
+    <option value="3級">3級</option>
+    <option value="4級">4級</option>
+  </select>
+
+  <label>試験日</label>
+  <input id="examDate" type="date">
+
+  <label>会場</label>
+  <select id="venue">
+    <option value="東京会場">東京会場</option>
+    <option value="埼玉会場">埼玉会場</option>
+    <option value="千葉会場">千葉会場</option>
+    <option value="神奈川会場">神奈川会場</option>
+  </select>
+
+  <button id="applyBtn">申込する</button>
+</div>
+
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  // ▼ ログインしていない場合はログインページへ
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+
+  // ▼ 申込処理
+  document.getElementById("applyBtn").onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const level = document.getElementById("level").value;
+    const examDate = document.getElementById("examDate").value;
+    const venue = document.getElementById("venue").value;
+
+    if (!examDate) {
+      alert("試験日を選択してください。");
+      return;
+    }
+
+    try {
+      // Firestore の申込データ保存
+      await setDoc(doc(db, "applications", `${user.uid}_${Date.now()}`), {
+        uid: user.uid,
+        level,
+        examDate,
+        venue,
+        created_at: new Date()
+      });
+
+      window.location.href = "apply-success.html";
+
+    } catch (error) {
+      alert("申込エラー: " + error.message);
+    }
+  };
+</script>
+
+</body>
+</html>
