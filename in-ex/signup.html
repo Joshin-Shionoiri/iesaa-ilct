@@ -5,100 +5,71 @@
 <title>ILCT 受験者ポータル｜新規登録</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body {
-    margin:0;
-    font-family:"Yu Gothic", Arial, sans-serif;
-    background:#f5f7fb;
-  }
-
-  .signup-box {
-    max-width:480px;
-    margin:60px auto;
-    background:#fff;
-    padding:40px;
-    border-radius:12px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.15);
-  }
-
-  h2 {
-    text-align:center;
-    font-size:28px;
-    margin-bottom:30px;
-    color:#004b9b;
-  }
-
-  label {
-    font-size:18px;
-    display:block;
-    margin-bottom:8px;
-  }
-
-  input {
-    width:100%;
-    padding:14px;
-    font-size:18px;
-    margin-bottom:20px;
-    border:1px solid #ccc;
-    border-radius:8px;
-  }
-
-  .signup-btn {
-    width:100%;
-    padding:14px;
-    background:#004b9b;
-    color:#fff;
-    font-size:20px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    transition:0.3s;
-  }
-
-  .signup-btn:hover {
-    background:#0060d0;
-  }
-
-  .links {
-    text-align:center;
-    margin-top:20px;
-    font-size:16px;
-  }
-
-  .links a {
-    color:#004b9b;
-    text-decoration:none;
-  }
+  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
+  .box { max-width:480px; margin:60px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
+  label { font-size:18px; margin-bottom:8px; display:block; }
+  input { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
+          border:1px solid #ccc; border-radius:8px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
 </style>
 </head>
 <body>
 
-<div class="signup-box">
+<div class="box">
   <h2>新規登録</h2>
 
-  <form action="signup.php" method="POST">
+  <label>氏名</label>
+  <input id="name">
 
-    <label>氏名</label>
-    <input type="text" name="name" required>
+  <label>メールアドレス</label>
+  <input id="email" type="email">
 
-    <label>メールアドレス</label>
-    <input type="email" name="email" required>
+  <label>パスワード</label>
+  <input id="password" type="password">
 
-    <label>パスワード</label>
-    <input type="password" name="password" required>
+  <label>学校名</label>
+  <input id="school">
 
-    <label>学校名</label>
-    <input type="text" name="school">
+  <label>学年</label>
+  <input id="grade">
 
-    <label>学年</label>
-    <input type="text" name="grade">
-
-    <button class="signup-btn">登録する</button>
-  </form>
-
-  <div class="links">
-    <a href="login.html">ログインはこちら</a>
-  </div>
+  <button id="signupBtn">登録する</button>
 </div>
+
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  document.getElementById("signupBtn").onclick = async () => {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const school = document.getElementById("school").value;
+    const grade = document.getElementById("grade").value;
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        school,
+        grade,
+        created_at: new Date()
+      });
+
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      alert("登録エラー: " + error.message);
+    }
+  };
+</script>
 
 </body>
 </html>
