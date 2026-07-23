@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
-  .box { max-width:520px; margin:60px auto; background:#fff; padding:40px;
+  .box { max-width:700px; margin:40px auto; background:#fff; padding:40px;
          border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
   h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
   label { font-size:18px; margin-bottom:8px; display:block; }
@@ -14,75 +14,121 @@
                   border:1px solid #ccc; border-radius:8px; }
   button { width:100%; padding:14px; background:#004b9b; color:#fff;
            font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+  .note { background:#fff8e1; padding:15px; border-radius:8px; margin-bottom:20px; }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <h2>受験申込</h2>
+  <h2>ILCT 受験申込</h2>
 
-  <label>受験級</label>
+  <!-- 受験級 -->
+  <label>受験級（受験料）</label>
   <select id="level">
-    <option value="1級">1級</option>
-    <option value="2級">2級</option>
-    <option value="3級">3級</option>
-    <option value="4級">4級</option>
+    <option value="G1|1500">G1（1,500円）</option>
+    <option value="G2|2000">G2（2,000円）</option>
+    <option value="G3|2500">G3（2,500円）</option>
+    <option value="G4|3000">G4（3,000円）</option>
+    <option value="G5|3800">G5（3,800円）</option>
+    <option value="G6|4500">G6（4,500円）</option>
   </select>
 
+  <!-- 試験方式 -->
+  <label>試験方式</label>
+  <select id="method">
+    <option value="PBT（紙試験）">PBT（紙試験）</option>
+    <option value="CBT（コンピュータ試験）">CBT（コンピュータ試験）</option>
+  </select>
+
+  <!-- 試験日 -->
   <label>試験日</label>
   <input id="examDate" type="date">
 
-  <label>会場</label>
-  <select id="venue">
-    <option value="東京会場">東京会場</option>
-    <option value="埼玉会場">埼玉会場</option>
-    <option value="千葉会場">千葉会場</option>
-    <option value="神奈川会場">神奈川会場</option>
+  <!-- 地域 -->
+  <label>地域</label>
+  <select id="region">
+    <option value="東京">東京</option>
+    <option value="埼玉">埼玉</option>
+    <option value="千葉">千葉</option>
+    <option value="神奈川">神奈川</option>
   </select>
 
-  <button id="applyBtn">申込する</button>
+  <!-- 会場 -->
+  <label>会場</label>
+  <select id="venue">
+    <option value="東京会場A">東京会場A</option>
+    <option value="東京会場B">東京会場B</option>
+    <option value="埼玉会場A">埼玉会場A</option>
+    <option value="千葉会場A">千葉会場A</option>
+    <option value="神奈川会場A">神奈川会場A</option>
+  </select>
+
+  <!-- 免除申請 -->
+  <label>受験料免除申請</label>
+  <select id="exemption">
+    <option value="なし">申請しない</option>
+    <option value="全額免除">全額免除</option>
+    <option value="一部免除">一部免除</option>
+  </select>
+
+  <label>免除理由（該当する場合）</label>
+  <select id="exemptionReason">
+    <option value="なし">該当なし</option>
+    <option value="生活保護世帯">生活保護世帯</option>
+    <option value="就学援助受給者">就学援助受給者</option>
+    <option value="児童養護施設入所">児童養護施設入所</option>
+    <option value="ひとり親家庭">ひとり親家庭</option>
+    <option value="災害被災">災害被災（罹災証明書）</option>
+    <option value="障害による支援必要">障害による支援必要</option>
+    <option value="経済的困難">経済的困難（個別審査）</option>
+    <option value="その他">その他</option>
+  </select>
+
+  <div class="note">
+    ※免除申請には証明書類の提出が必要です（PDFに記載の通り）。
+  </div>
+
+  <button id="nextBtn">申込内容を確認する</button>
 </div>
 
 <script type="module">
-  import { auth, db } from "./firebase.js";
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+  import { auth } from "./firebase.js";
 
-  // ▼ ログインしていない場合はログインページへ
   auth.onAuthStateChanged((user) => {
     if (!user) {
       window.location.href = "login.html";
     }
   });
 
-  // ▼ 申込処理
-  document.getElementById("applyBtn").onclick = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+  document.getElementById("nextBtn").onclick = () => {
+    const levelRaw = document.getElementById("level").value.split("|");
+    const level = levelRaw[0];
+    const fee = levelRaw[1];
 
-    const level = document.getElementById("level").value;
+    const method = document.getElementById("method").value;
     const examDate = document.getElementById("examDate").value;
+    const region = document.getElementById("region").value;
     const venue = document.getElementById("venue").value;
+    const exemption = document.getElementById("exemption").value;
+    const exemptionReason = document.getElementById("exemptionReason").value;
 
     if (!examDate) {
       alert("試験日を選択してください。");
       return;
     }
 
-    try {
-      // Firestore の申込データ保存
-      await setDoc(doc(db, "applications", `${user.uid}_${Date.now()}`), {
-        uid: user.uid,
-        level,
-        examDate,
-        venue,
-        created_at: new Date()
-      });
+    const params = new URLSearchParams({
+      level,
+      fee,
+      method,
+      examDate,
+      region,
+      venue,
+      exemption,
+      exemptionReason
+    });
 
-      window.location.href = "apply-success.html";
-
-    } catch (error) {
-      alert("申込エラー: " + error.message);
-    }
+    window.location.href = "apply-confirm.html?" + params.toString();
   };
 </script>
 
