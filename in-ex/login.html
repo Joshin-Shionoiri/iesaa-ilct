@@ -5,91 +5,47 @@
 <title>ILCT 受験者ポータル｜ログイン</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body {
-    margin:0;
-    font-family:"Yu Gothic", Arial, sans-serif;
-    background:#f5f7fb;
-  }
-
-  .login-box {
-    max-width:420px;
-    margin:80px auto;
-    background:#fff;
-    padding:40px;
-    border-radius:12px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.15);
-  }
-
-  h2 {
-    text-align:center;
-    font-size:28px;
-    margin-bottom:30px;
-    color:#004b9b;
-  }
-
-  label {
-    font-size:18px;
-    display:block;
-    margin-bottom:8px;
-  }
-
-  input {
-    width:100%;
-    padding:14px;
-    font-size:18px;
-    margin-bottom:20px;
-    border:1px solid #ccc;
-    border-radius:8px;
-  }
-
-  .login-btn {
-    width:100%;
-    padding:14px;
-    background:#004b9b;
-    color:#fff;
-    font-size:20px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    transition:0.3s;
-  }
-
-  .login-btn:hover {
-    background:#0060d0;
-  }
-
-  .links {
-    text-align:center;
-    margin-top:20px;
-    font-size:16px;
-  }
-
-  .links a {
-    color:#004b9b;
-    text-decoration:none;
-  }
+  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
+  .box { max-width:420px; margin:80px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
+  label { font-size:18px; margin-bottom:8px; display:block; }
+  input { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
+          border:1px solid #ccc; border-radius:8px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
 </style>
 </head>
 <body>
 
-<div class="login-box">
-  <h2>ILCT 受験者ポータル</h2>
+<div class="box">
+  <h2>ログイン</h2>
 
-  <form action="login.php" method="POST">
   <label>メールアドレス</label>
-  <input type="email" name="email" required>
+  <input id="email" type="email">
 
   <label>パスワード</label>
-  <input type="password" name="password" required>
+  <input id="password" type="password">
 
-  <button class="login-btn">ログイン</button>
-</form>
-  
-  <div class="links">
-    <a href="signup.html">新規登録はこちら</a><br><br>
-    <a href="reset.html">パスワードを忘れた方</a>
-  </div>
+  <button id="loginBtn">ログイン</button>
 </div>
+
+<script type="module">
+  import { auth } from "./firebase.js";
+  import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+  document.getElementById("loginBtn").onclick = async () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert("ログインエラー: " + error.message);
+    }
+  };
+</script>
 
 </body>
 </html>
