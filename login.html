@@ -75,16 +75,16 @@
 <div class="login-box">
   <h2>ILCT 受験者ポータル</h2>
 
-  <form action="dashboard.html">
-    <label>メールアドレス</label>
-    <input type="email" required>
+  <form action="login.php" method="POST">
+  <label>メールアドレス</label>
+  <input type="email" name="email" required>
 
-    <label>パスワード</label>
-    <input type="password" required>
+  <label>パスワード</label>
+  <input type="password" name="password" required>
 
-    <button class="login-btn">ログイン</button>
-  </form>
-
+  <button class="login-btn">ログイン</button>
+</form>
+  
   <div class="links">
     <a href="signup.html">新規登録はこちら</a><br><br>
     <a href="reset.html">パスワードを忘れた方</a>
