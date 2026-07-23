@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 身分証明書審査ページ（協会専用）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
+  .header { background:#004b9b; color:#fff; padding:20px; text-align:center; font-size:24px; }
+  .container { max-width:1100px; margin:30px auto; padding:20px; }
+  .card { background:#fff; padding:20px; margin-bottom:20px; border-radius:10px;
+          box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+  img { max-width:200px; margin-right:20px; border-radius:8px; }
+  .row { display:flex; align-items:flex-start; gap:20px; }
+  select { padding:10px; font-size:18px; }
+  button { padding:10px 20px; font-size:18px; background:#004b9b; color:#fff;
+           border:none; border-radius:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">ILCT 身分証明書審査（協会専用）</div>
+
+<div class="container" id="list"></div>
+
+<script type="module">
+  import { db } from "./firebase.js";
+  import { collection, getDocs, doc, updateDoc }
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const list = document.getElementById("list");
+
+  const snapshot = await getDocs(collection(db, "idVerification"));
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>${data.name}（${data.uid}）</h3>
+      <p>生年月日：${data.birthday}</p>
+      <p>身分証種類：${data.idType}</p>
+
+      <div class="row">
+        <div>
+          <p><strong>証明写真</strong></p>
+          <img src="${data.photoUrl}">
+        </div>
+        <div>
+          <p><strong>身分証明書</strong></p>
+          <img src="${data.idUrl}">
+        </div>
+      </div>
+
+      <p>現在のステータス：<strong>${data.status}</strong></p>
+
+      <label>ステータス変更</label>
+      <select id="status-${data.uid}">
+        <option value="審査中">審査中</option>
+        <option value="承認">承認</option>
+        <option value="却下">却下</option>
+      </select>
+
+      <button onclick="updateStatus('${data.uid}')">更新する</button>
+    `;
+
+    list.appendChild(card);
+  });
+
+  window.updateStatus = async (uid) => {
+    const newStatus = document.getElementById(`status-${uid}`).value;
+    await updateDoc(doc(db, "idVerification", uid), { status: newStatus });
+    alert("ステータスを更新しました");
+    location.reload();
+  };
+</script>
+
+</body>
+</html>
