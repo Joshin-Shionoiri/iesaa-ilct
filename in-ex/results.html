@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>成績閲覧｜ILCT受験者ポータル</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
+  .header { background:#004b9b; color:#fff; padding:20px; text-align:center; font-size:24px; }
+  .container { max-width:900px; margin:40px auto; padding:20px; }
+  .card { background:#fff; padding:20px; margin-bottom:20px;
+          border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+  .empty { text-align:center; padding:40px; font-size:20px; color:#666; }
+  .pass { color:#008000; font-weight:bold; }
+  .fail { color:#d00000; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="header">成績閲覧</div>
+
+<div class="container" id="list"></div>
+
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { collection, query, where, getDocs } 
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  // ▼ ログインチェック
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const list = document.getElementById("list");
+
+    // ▼ Firestore から成績データ取得
+    const q = query(
+      collection(db, "results"),
+      where("uid", "==", user.uid)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      list.innerHTML = `<div class="empty">成績はまだありません。</div>`;
+      return;
+    }
+
+    // ▼ 成績データを表示
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const statusClass = data.pass ? "pass" : "fail";
+      const statusText = data.pass ? "合格" : "不合格";
+
+      card.innerHTML = `
+        <h3>${data.level}</h3>
+        <p><strong>試験日：</strong> ${data.examDate}</p>
+        <p><strong>得点：</strong> ${data.score} 点</p>
+        <p><strong>判定：</strong> <span class="${statusClass}">${statusText}</span></p>
+      `;
+
+      list.appendChild(card);
+    });
+  });
+</script>
+
+</body>
+</html>
