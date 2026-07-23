@@ -2,108 +2,62 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>ILCT 受験者ポータル｜新規登録</title>
+<title>ILCT 新規登録</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
-  .box { max-width:480px; margin:60px auto; background:#fff; padding:40px;
+  body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
+  .box { max-width:500px; margin:80px auto; background:#fff; padding:40px;
          border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
-  h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
-  label { font-size:18px; margin-bottom:8px; display:block; }
-  input { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
-          border:1px solid #ccc; border-radius:8px; }
+  input { width:100%; padding:14px; margin-bottom:20px; font-size:18px; }
   button { width:100%; padding:14px; background:#004b9b; color:#fff;
-           font-size:20px; border:none; border-radius:8px; cursor:pointer; margin-bottom:20px; }
-  .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
-  a { display:block; text-align:center; margin-top:10px; color:#004b9b; }
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <h2>新規登録</h2>
+  <h2>新規登録（ILCT 受験者）</h2>
 
-  <label>氏名</label>
-  <input id="name">
-
-  <label>メールアドレス</label>
-  <input id="email" type="email">
-
-  <label>パスワード</label>
-  <input id="password" type="password">
-
-  <label>学校名</label>
-  <input id="school">
-
-  <label>学年</label>
-  <input id="grade">
+  <input id="name" placeholder="氏名">
+  <input id="email" placeholder="メールアドレス">
+  <input id="password" type="password" placeholder="パスワード（6文字以上）">
 
   <button id="signupBtn">登録する</button>
-  <button class="google-btn" id="googleSignupBtn">Googleで登録</button>
-
-  <a href="login.html">ログインはこちら</a>
 </div>
 
 <script type="module">
   import { auth, db } from "./firebase.js";
-  import { 
-    createUserWithEmailAndPassword, 
-    GoogleAuthProvider, 
-    signInWithPopup 
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import { createUserWithEmailAndPassword, updateProfile }
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import { doc, setDoc }
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-
-  // ▼ メール登録
   document.getElementById("signupBtn").onclick = async () => {
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    const school = document.getElementById("school").value;
-    const grade = document.getElementById("grade").value;
 
     try {
+      // Firebase Auth に登録
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // displayName を設定
+      await updateProfile(user, { displayName: name });
+
+      // Firestore に受験者情報を保存
       await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
         name,
         email,
-        school,
-        grade,
         created_at: new Date()
       });
 
-      window.location.href = "signup-success.html";
+      alert("登録が完了しました！");
+      window.location.href = "dashboard.html";
 
     } catch (error) {
       alert("登録エラー: " + error.message);
-    }
-  };
-
-  // ▼ Google登録
-  document.getElementById("googleSignupBtn").onclick = async () => {
-    const provider = new GoogleAuthProvider();
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const name = user.displayName || "未設定";
-      const email = user.email;
-
-      await setDoc(doc(db, "users", user.uid), {
-        name,
-        email,
-        school: "",
-        grade: "",
-        created_at: new Date()
-      });
-
-      window.location.href = "signup-success.html";
-
-    } catch (error) {
-      alert("Google登録エラー: " + error.message);
     }
   };
 </script>
