@@ -130,6 +130,33 @@
 
     window.location.href = "apply-confirm.html?" + params.toString();
   };
+  document.getElementById("submitBtn").onclick = async () => {
+  const user = auth.currentUser;
+  const level = document.getElementById("level").value;
+  const examDate = document.getElementById("examDate").value;
+  const venue = document.getElementById("venue").value;
+
+  // ★ 受験番号を生成
+  const examNumber = generateExamNumber();
+
+  try {
+    await setDoc(doc(db, "applications", `${user.uid}_${Date.now()}`), {
+      uid: user.uid,
+      examNumber,      // ← ここに受験番号を保存
+      level,
+      examDate,
+      venue,
+      created_at: new Date()
+    });
+
+    // 受験番号をURLに渡して確認ページへ
+    window.location.href = `apply-confirm.html?examNumber=${examNumber}`;
+
+  } catch (error) {
+    alert("申込エラー: " + error.message);
+  }
+};
+
 </script>
 
 </body>
