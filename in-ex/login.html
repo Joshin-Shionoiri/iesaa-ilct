@@ -15,6 +15,9 @@
   button { width:100%; padding:14px; background:#004b9b; color:#fff;
            font-size:20px; border:none; border-radius:8px; cursor:pointer; margin-bottom:20px; }
   .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
+  .github-btn { background:#333; color:#fff; }
+  .yahoo-btn { background:#6001d2; color:#fff; }
+  .anon-btn { background:#555; color:#fff; }
   a { display:block; text-align:center; margin-top:10px; color:#004b9b; }
 </style>
 </head>
@@ -30,7 +33,12 @@
   <input id="password" type="password">
 
   <button id="loginBtn">ログイン</button>
+
+  <!-- ▼ OAuth ログイン -->
   <button class="google-btn" id="googleLoginBtn">Googleでログイン</button>
+  <button class="github-btn" id="githubLoginBtn">GitHubでログイン</button>
+  <button class="yahoo-btn" id="yahooLoginBtn">Yahoo!でログイン</button>
+  <button class="anon-btn" id="anonLoginBtn">匿名ログイン（テスト用）</button>
 
   <a href="signup.html">新規登録はこちら</a>
   <a href="reset-password.html">パスワードを忘れた方はこちら</a>
@@ -40,11 +48,15 @@
   import { auth } from "./firebase.js";
   import { 
     signInWithEmailAndPassword, 
-    GoogleAuthProvider, 
-    signInWithPopup 
+    GoogleAuthProvider,
+    GithubAuthProvider,
+    OAuthProvider,
+    signInWithPopup,
+    signInAnonymously,
+    onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-  // ▼ メールログイン
+  /* ▼ メールログイン */
   document.getElementById("loginBtn").onclick = async () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -57,10 +69,9 @@
     }
   };
 
-  // ▼ Googleログイン
+  /* ▼ Googleログイン */
   document.getElementById("googleLoginBtn").onclick = async () => {
     const provider = new GoogleAuthProvider();
-
     try {
       await signInWithPopup(auth, provider);
       window.location.href = "dashboard.html";
@@ -68,6 +79,46 @@
       alert("Googleログインエラー: " + error.message);
     }
   };
+
+  /* ▼ GitHubログイン */
+  document.getElementById("githubLoginBtn").onclick = async () => {
+    const provider = new GithubAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert("GitHubログインエラー: " + error.message);
+    }
+  };
+
+  /* ▼ Yahooログイン */
+  document.getElementById("yahooLoginBtn").onclick = async () => {
+    const provider = new OAuthProvider('yahoo.com');
+    try {
+      await signInWithPopup(auth, provider);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert("Yahooログインエラー: " + error.message);
+    }
+  };
+
+  /* ▼ 匿名ログイン（テスト用） */
+  document.getElementById("anonLoginBtn").onclick = async () => {
+    try {
+      await signInAnonymously(auth);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert("匿名ログインエラー: " + error.message);
+    }
+  };
+
+  /* ▼ ログイン後の共通処理 */
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // すでにログインしている場合は自動でダッシュボードへ
+      window.location.href = "dashboard.html";
+    }
+  });
 </script>
 
 </body>
