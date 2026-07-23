@@ -15,6 +15,7 @@
   button { width:100%; padding:14px; background:#004b9b; color:#fff;
            font-size:20px; border:none; border-radius:8px; cursor:pointer; margin-bottom:20px; }
   .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
+  a { display:block; text-align:center; margin-top:10px; color:#004b9b; }
 </style>
 </head>
 <body>
@@ -29,14 +30,19 @@
   <input id="password" type="password">
 
   <button id="loginBtn">ログイン</button>
-
   <button class="google-btn" id="googleLoginBtn">Googleでログイン</button>
+
+  <a href="signup.html">新規登録はこちら</a>
+  <a href="reset-password.html">パスワードを忘れた方はこちら</a>
 </div>
 
 <script type="module">
   import { auth } from "./firebase.js";
-  import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } 
-    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import { 
+    signInWithEmailAndPassword, 
+    GoogleAuthProvider, 
+    signInWithPopup 
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
   // ▼ メールログイン
   document.getElementById("loginBtn").onclick = async () => {
