@@ -41,6 +41,12 @@
     <p id="idStatus">読み込み中...</p>
   </div>
 
+  <!-- 最新成績 -->
+  <div class="section">
+    <h3>最新の成績</h3>
+    <div id="latestResult">読み込み中...</div>
+  </div>
+
   <!-- 最新申込状況 -->
   <div class="section">
     <h3>最新の申込状況</h3>
@@ -98,6 +104,32 @@
       if (status === "承認") idStatus.innerHTML = `<span class="status-ok">承認</span>`;
       else if (status === "審査中") idStatus.innerHTML = `<span class="status-wait">審査中</span>`;
       else idStatus.innerHTML = `<span class="status-ng">却下</span>`;
+    }
+
+    /* 最新成績 */
+    const resultQuery = query(
+      collection(db, "results"),
+      where("uid", "==", user.uid),
+      orderBy("created_at", "desc"),
+      limit(1)
+    );
+
+    const resultSnap = await getDocs(resultQuery);
+    const resultDiv = document.getElementById("latestResult");
+
+    if (resultSnap.empty) {
+      resultDiv.innerHTML = "成績はまだありません。";
+    } else {
+      const r = resultSnap.docs[0].data();
+      const status = r.pass ? "合格" : "不合格";
+      const color = r.pass ? "status-ok" : "status-ng";
+
+      resultDiv.innerHTML = `
+        <p>受験級：${r.level}</p>
+        <p>試験日：${r.examDate}</p>
+        <p>得点：${r.score} 点</p>
+        <p>判定：<span class="${color}">${status}</span></p>
+      `;
     }
 
     /* 最新申込状況 */
