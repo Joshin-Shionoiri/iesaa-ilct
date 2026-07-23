@@ -11,7 +11,7 @@
   .hero {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9; /* YouTubeと同じ比率 */
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     background:#000;
   }
@@ -19,34 +19,9 @@
   .hero video {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* 全画面にフィット */
+    object-fit: cover;
     filter: brightness(70%);
   }
-
-  <!-- ▼ 受験者メニュー ▼ -->
-<div class="section" style="text-align:center; margin-top:40px;">
-  <h2>受験者メニュー</h2>
-
-  <a href="signup.html" class="btn">新規登録</a>
-  <a href="login.html" class="btn">ログイン</a>
-  <a href="dashboard.html" class="btn">受験者ページ</a>
-</div>
-
-<style>
-  .btn {
-    display: inline-block;
-    padding: 14px 28px;
-    margin: 10px;
-    font-size: 20px;
-    background: #004b9b;
-    color: #fff;
-    border-radius: 8px;
-    text-decoration: none;
-  }
-  .btn:hover {
-    background: #003b7a;
-  }
-</style>
 
   /* ▼ セクション ▼ */
   .section {
@@ -101,6 +76,21 @@
     font-weight: bold;
   }
 
+  /* ▼ 受験者メニューのボタン ▼ */
+  .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    margin: 10px;
+    font-size: 20px;
+    background: #004b9b;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+  .btn:hover {
+    background: #003b7a;
+  }
+
   footer {
     text-align: center;
     padding: 30px;
@@ -113,13 +103,22 @@
 </head>
 <body>
 
-<!-- ▼▼▼ トップ動画（テキストなし） ▼▼▼ -->
+<!-- ▼▼▼ トップ動画 ▼▼▼ -->
 <div class="hero">
   <video autoplay muted loop playsinline>
     <source src="topmov.mp4" type="video/mp4">
   </video>
 </div>
 <!-- ▲▲▲ トップ動画 ▲▲▲ -->
+
+<!-- ▼ 受験者メニュー ▼ -->
+<div class="section" style="text-align:center; margin-top:40px;">
+  <h2>受験者メニュー</h2>
+
+  <a href="signup.html" class="btn">新規登録</a>
+  <a href="login.html" class="btn">ログイン</a>
+  <a href="dashboard.html" class="btn">受験者ページ</a>
+</div>
 
 <!-- ▼ お知らせ ▼ -->
 <div class="section">
@@ -173,7 +172,7 @@
   </div>
 </div>
 
-<!-- ▼ 級概要（レベル） ▼ -->
+<!-- ▼ 級概要 ▼ -->
 <div class="section">
   <h2>級概要（レベル）</h2>
 
@@ -233,7 +232,7 @@
   </div>
 </div>
 
-<!-- ▼ 受験料（値段） ▼ -->
+<!-- ▼ 受験料 ▼ -->
 <div class="section">
   <h2>受験料</h2>
   <p style="font-size:20px; line-height:1.8;">
