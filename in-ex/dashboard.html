@@ -15,6 +15,11 @@
   .cards { display:flex; flex-wrap:wrap; gap:25px; }
   .card { flex:1 1 300px; background:#fff; padding:25px; border-radius:12px;
           box-shadow:0 4px 12px rgba(0,0,0,0.1); text-decoration:none; color:#333; }
+
+  .status-ok { color:#008000; font-weight:bold; }
+  .status-wait { color:#d0a000; font-weight:bold; }
+  .status-ng { color:#d00000; font-weight:bold; }
+  .status-none { color:#666; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -28,6 +33,12 @@
     <h3>受験者情報</h3>
     <p>氏名：<span id="userName"></span></p>
     <p>受験者ID：<span id="userId"></span></p>
+  </div>
+
+  <!-- 身分証明書ステータス -->
+  <div class="section">
+    <h3>身分証明書の審査状況</h3>
+    <p id="idStatus">読み込み中...</p>
   </div>
 
   <!-- 最新申込状況 -->
@@ -56,13 +67,15 @@
     <a href="my-exams.html" class="card">申込履歴</a>
     <a href="results.html" class="card">成績閲覧</a>
     <a href="profile.html" class="card">プロフィール編集</a>
+    <a href="exemption.html" class="card">受験料免除申請</a>
+    <a href="id-upload.html" class="card">身分証明書提出</a>
   </div>
 
 </div>
 
 <script type="module">
   import { auth, db } from "./firebase.js";
-  import { collection, query, where, orderBy, limit, getDocs } 
+  import { collection, query, where, orderBy, limit, getDocs, doc, getDoc }
     from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
   auth.onAuthStateChanged(async (user) => {
@@ -74,7 +87,20 @@
     document.getElementById("userName").innerText = user.displayName || "未設定";
     document.getElementById("userId").innerText = user.uid;
 
-    // ▼ 最新申込状況
+    /* 身分証明書ステータス */
+    const idSnap = await getDoc(doc(db, "idVerification", user.uid));
+    const idStatus = document.getElementById("idStatus");
+
+    if (!idSnap.exists()) {
+      idStatus.innerHTML = `<span class="status-none">未提出</span>`;
+    } else {
+      const status = idSnap.data().status;
+      if (status === "承認") idStatus.innerHTML = `<span class="status-ok">承認</span>`;
+      else if (status === "審査中") idStatus.innerHTML = `<span class="status-wait">審査中</span>`;
+      else idStatus.innerHTML = `<span class="status-ng">却下</span>`;
+    }
+
+    /* 最新申込状況 */
     const appQuery = query(
       collection(db, "applications"),
       where("uid", "==", user.uid),
@@ -96,7 +122,7 @@
       `;
     }
 
-    // ▼ お知らせ一覧
+    /* お知らせ */
     const newsSnap = await getDocs(collection(db, "news"));
     const newsDiv = document.getElementById("newsList");
 
