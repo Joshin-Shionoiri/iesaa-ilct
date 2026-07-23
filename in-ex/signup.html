@@ -2,15 +2,24 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>ILCT 新規登録</title>
+<title>新規登録｜ILCT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
-  .box { max-width:500px; margin:80px auto; background:#fff; padding:40px;
-         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
-  input { width:100%; padding:14px; margin-bottom:20px; font-size:18px; }
-  button { width:100%; padding:14px; background:#004b9b; color:#fff;
-           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+  .box {
+    max-width:500px; margin:80px auto; background:#fff; padding:40px;
+    border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  }
+  h2 { text-align:center; margin-bottom:30px; }
+  input {
+    width:100%; padding:14px; margin-bottom:20px;
+    font-size:18px; border:1px solid #ccc; border-radius:8px;
+  }
+  button {
+    width:100%; padding:14px; background:#004b9b; color:#fff;
+    font-size:20px; border:none; border-radius:8px; cursor:pointer;
+  }
+  button:hover { background:#003b7a; }
 </style>
 </head>
 <body>
@@ -27,25 +36,38 @@
 
 <script type="module">
   import { auth, db } from "./firebase.js";
-  import { createUserWithEmailAndPassword, updateProfile }
-    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-  import { doc, setDoc }
-    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+  import {
+    createUserWithEmailAndPassword,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    doc,
+    setDoc
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  /* ▼ 日本語エラーメッセージ辞書 ▼ */
+  const errorMessages = {
+    "auth/email-already-in-use": "このメールアドレスは既に登録されています。",
+    "auth/invalid-email": "メールアドレスの形式が正しくありません。",
+    "auth/weak-password": "パスワードが弱すぎます（6文字以上必要）。",
+    "auth/network-request-failed": "通信エラーが発生しました。ネット環境をご確認ください。",
+    "default": "登録に失敗しました。入力内容をご確認ください。"
+  };
 
   document.getElementById("signupBtn").onclick = async () => {
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
     try {
-      // Firebase Auth に登録
+      /* ▼ Firebase Auth に登録 ▼ */
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // displayName を設定
+      /* ▼ displayName に氏名を保存 ▼ */
       await updateProfile(user, { displayName: name });
 
-      // Firestore に受験者情報を保存
+      /* ▼ Firestore にユーザー情報を保存 ▼ */
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         name,
@@ -53,11 +75,12 @@
         created_at: new Date()
       });
 
-      alert("登録が完了しました！");
+      /* ▼ 登録完了 → ダッシュボードへ ▼ */
       window.location.href = "dashboard.html";
 
     } catch (error) {
-      alert("登録エラー: " + error.message);
+      const msg = errorMessages[error.code] || errorMessages["default"];
+      window.location.href = `error.html?msg=${encodeURIComponent(msg)}`;
     }
   };
 </script>
