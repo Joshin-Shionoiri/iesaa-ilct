@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 身分証明書提出</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
+  .box { max-width:700px; margin:40px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
+  label { font-size:18px; margin-bottom:8px; display:block; }
+  input, select { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
+                  border:1px solid #ccc; border-radius:8px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>身分証明書提出</h2>
+
+  <label>氏名</label>
+  <input id="name">
+
+  <label>生年月日</label>
+  <input id="birthday" type="date">
+
+  <label>身分証明書の種類</label>
+  <select id="idType">
+    <option value="学生証">学生証</option>
+    <option value="健康保険資格確認書">健康保険資格確認書</option>
+    <option value="個人番号カード">個人番号カード</option>
+    <option value="運転免許証">運転免許証</option>
+    <option value="在留カード">在留カード</option>
+    <option value="その他">その他</option>
+  </select>
+
+  <label>証明写真（4cm × 3cm）</label>
+  <input id="photo" type="file" accept=".jpg,.jpeg,.png">
+
+  <label>身分証明書の写し（PDF / JPG / PNG）</label>
+  <input id="idFile" type="file" accept=".pdf,.jpg,.jpeg,.png">
+
+  <button id="submitBtn">提出する</button>
+</div>
+
+<script type="module">
+  import { auth, db, storage } from "./firebase.js";
+  import { ref, uploadBytes, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js";
+  import { doc, setDoc }
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  auth.onAuthStateChanged((user) => {
+    if (!user) window.location.href = "login.html";
+  });
+
+  document.getElementById("submitBtn").onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const name = document.getElementById("name").value;
+    const birthday = document.getElementById("birthday").value;
+    const idType = document.getElementById("idType").value;
+
+    const photo = document.getElementById("photo").files[0];
+    const idFile = document.getElementById("idFile").files[0];
+
+    if (!photo || !idFile) {
+      alert("証明写真と身分証明書の両方をアップロードしてください。");
+      return;
+    }
+
+    try {
+      // ▼ 写真アップロード
+      const photoPath = `id/${user.uid}_photo_${Date.now()}`;
+      const photoRef = ref(storage, photoPath);
+      await uploadBytes(photoRef, photo);
+      const photoUrl = await getDownloadURL(photoRef);
+
+      // ▼ 身分証明書アップロード
+      const idPath = `id/${user.uid}_id_${Date.now()}`;
+      const idRef = ref(storage, idPath);
+      await uploadBytes(idRef, idFile);
+      const idUrl = await getDownloadURL(idRef);
+
+      // ▼ Firestore 保存
+      await setDoc(doc(db, "idVerification", user.uid), {
+        uid: user.uid,
+        name,
+        birthday,
+        idType,
+        photoUrl,
+        idUrl,
+        created_at: new Date(),
+        status: "審査中"
+      });
+
+      alert("身分証明書を提出しました。審査結果はメールで通知します。");
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      alert("提出エラー: " + error.message);
+    }
+  };
+</script>
+
+</body>
+</html>
