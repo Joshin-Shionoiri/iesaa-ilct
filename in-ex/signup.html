@@ -13,7 +13,8 @@
   input { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
           border:1px solid #ccc; border-radius:8px; }
   button { width:100%; padding:14px; background:#004b9b; color:#fff;
-           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; margin-bottom:20px; }
+  .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
 </style>
 </head>
 <body>
@@ -37,13 +38,21 @@
   <input id="grade">
 
   <button id="signupBtn">登録する</button>
+
+  <button class="google-btn" id="googleSignupBtn">Googleで登録</button>
 </div>
 
 <script type="module">
   import { auth, db } from "./firebase.js";
-  import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import { 
+    createUserWithEmailAndPassword, 
+    GoogleAuthProvider, 
+    signInWithPopup 
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
   import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
+  // ▼ メール登録
   document.getElementById("signupBtn").onclick = async () => {
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
@@ -67,6 +76,33 @@
 
     } catch (error) {
       alert("登録エラー: " + error.message);
+    }
+  };
+
+  // ▼ Google登録
+  document.getElementById("googleSignupBtn").onclick = async () => {
+    const provider = new GoogleAuthProvider();
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Googleログインの場合、名前は Google アカウントから取得
+      const name = user.displayName || "未設定";
+      const email = user.email;
+
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        school: "",
+        grade: "",
+        created_at: new Date()
+      });
+
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      alert("Google登録エラー: " + error.message);
     }
   };
 </script>
