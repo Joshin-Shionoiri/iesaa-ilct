@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>エラー｜ILCT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#f8f8f8; margin:0; }
+  .box {
+    max-width:600px; margin:80px auto; background:#fff; padding:40px;
+    border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15);
+    text-align:center;
+  }
+  h2 { color:#d00000; font-size:28px; margin-bottom:20px; }
+  p { font-size:20px; line-height:1.8; }
+  a {
+    display:inline-block; margin-top:20px; padding:12px 24px;
+    background:#004b9b; color:#fff; border-radius:8px;
+    text-decoration:none; font-size:18px;
+  }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>エラーが発生しました</h2>
+  <p id="msg"></p>
+  <a href="signup.html">新規登録に戻る</a>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const msg = params.get("msg") || "不明なエラーが発生しました。";
+  document.getElementById("msg").innerText = msg;
+</script>
+
+</body>
+</html>
