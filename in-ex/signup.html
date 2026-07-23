@@ -15,6 +15,7 @@
   button { width:100%; padding:14px; background:#004b9b; color:#fff;
            font-size:20px; border:none; border-radius:8px; cursor:pointer; margin-bottom:20px; }
   .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
+  a { display:block; text-align:center; margin-top:10px; color:#004b9b; }
 </style>
 </head>
 <body>
@@ -38,8 +39,9 @@
   <input id="grade">
 
   <button id="signupBtn">登録する</button>
-
   <button class="google-btn" id="googleSignupBtn">Googleで登録</button>
+
+  <a href="login.html">ログインはこちら</a>
 </div>
 
 <script type="module">
@@ -72,7 +74,7 @@
         created_at: new Date()
       });
 
-      window.location.href = "dashboard.html";
+      window.location.href = "signup-success.html";
 
     } catch (error) {
       alert("登録エラー: " + error.message);
@@ -87,7 +89,6 @@
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Googleログインの場合、名前は Google アカウントから取得
       const name = user.displayName || "未設定";
       const email = user.email;
 
@@ -99,7 +100,7 @@
         created_at: new Date()
       });
 
-      window.location.href = "dashboard.html";
+      window.location.href = "signup-success.html";
 
     } catch (error) {
       alert("Google登録エラー: " + error.message);
