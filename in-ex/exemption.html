@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 受験料免除申請</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#f5f7fb; margin:0; }
+  .box { max-width:700px; margin:40px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  h2 { text-align:center; color:#004b9b; margin-bottom:30px; }
+  label { font-size:18px; margin-bottom:8px; display:block; }
+  select, input, textarea { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
+                            border:1px solid #ccc; border-radius:8px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>ILCT 受験料免除申請</h2>
+
+  <label>申請区分</label>
+  <select id="type">
+    <option value="全額免除">全額免除</option>
+    <option value="一部免除">一部免除</option>
+  </select>
+
+  <label>申請理由</label>
+  <select id="reason">
+    <option value="生活保護世帯">生活保護世帯</option>
+    <option value="就学援助受給者">就学援助受給者</option>
+    <option value="児童養護施設入所">児童養護施設入所</option>
+    <option value="ひとり親家庭">ひとり親家庭</option>
+    <option value="災害被災（罹災証明書）">災害被災（罹災証明書）</option>
+    <option value="障害による支援必要">障害による支援必要</option>
+    <option value="経済的困難（個別審査）">経済的困難（個別審査）</option>
+    <option value="その他">その他</option>
+  </select>
+
+  <label>特記事項（任意）</label>
+  <textarea id="note" rows="4"></textarea>
+
+  <label>証明書類（PDF / JPG / PNG）</label>
+  <input id="file" type="file" accept=".pdf,.jpg,.jpeg,.png">
+
+  <button id="submitBtn">申請する</button>
+</div>
+
+<script type="module">
+  import { auth, db, storage } from "./firebase.js";
+  import { ref, uploadBytes, getDownloadURL } 
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js";
+  import { doc, setDoc } 
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  auth.onAuthStateChanged((user) => {
+    if (!user) window.location.href = "login.html";
+  });
+
+  document.getElementById("submitBtn").onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const type = document.getElementById("type").value;
+    const reason = document.getElementById("reason").value;
+    const note = document.getElementById("note").value;
+    const file = document.getElementById("file").files[0];
+
+    if (!file) {
+      alert("証明書類をアップロードしてください。");
+      return;
+    }
+
+    try {
+      // ▼ Storage にアップロード
+      const filePath = `exemption/${user.uid}_${Date.now()}_${file.name}`;
+      const storageRef = ref(storage, filePath);
+      await uploadBytes(storageRef, file);
+
+      const fileUrl = await getDownloadURL(storageRef);
+
+      // ▼ Firestore に申請情報を保存
+      await setDoc(doc(db, "exemptionRequests", `${user.uid}_${Date.now()}`), {
+        uid: user.uid,
+        type,
+        reason,
+        note,
+        fileUrl,
+        created_at: new Date()
+      });
+
+      alert("免除申請を受け付けました。審査結果はメールで通知します。");
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      alert("申請エラー: " + error.message);
+    }
+  };
+</script>
+
+</body>
+</html>
