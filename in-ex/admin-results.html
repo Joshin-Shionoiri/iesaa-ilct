@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 成績登録（協会専用）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
+  .header { background:#004b9b; color:#fff; padding:20px; text-align:center; font-size:24px; }
+  .box { max-width:700px; margin:40px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  label { font-size:18px; margin-bottom:8px; display:block; }
+  input, select { width:100%; padding:14px; font-size:18px; margin-bottom:20px;
+                  border:1px solid #ccc; border-radius:8px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">ILCT 成績登録（協会専用）</div>
+
+<div class="box">
+  <label>受験者UID</label>
+  <input id="uid">
+
+  <label>受験級</label>
+  <select id="level">
+    <option value="G1">G1</option>
+    <option value="G2">G2</option>
+    <option value="G3">G3</option>
+    <option value="G4">G4</option>
+    <option value="G5">G5</option>
+    <option value="G6">G6</option>
+  </select>
+
+  <label>得点</label>
+  <input id="score" type="number">
+
+  <label>合否</label>
+  <select id="pass">
+    <option value="true">合格</option>
+    <option value="false">不合格</option>
+  </select>
+
+  <label>試験日</label>
+  <input id="examDate" type="date">
+
+  <button id="submitBtn">成績を登録する</button>
+</div>
+
+<script type="module">
+  import { db } from "./firebase.js";
+  import { doc, setDoc } 
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  document.getElementById("submitBtn").onclick = async () => {
+    const uid = document.getElementById("uid").value;
+    const level = document.getElementById("level").value;
+    const score = Number(document.getElementById("score").value);
+    const pass = document.getElementById("pass").value === "true";
+    const examDate = document.getElementById("examDate").value;
+
+    if (!uid || !examDate) {
+      alert("UID と試験日は必須です。");
+      return;
+    }
+
+    try {
+      await setDoc(doc(db, "results", `${uid}_${Date.now()}`), {
+        uid,
+        level,
+        score,
+        pass,
+        examDate,
+        created_at: new Date()
+      });
+
+      alert("成績を登録しました！");
+    } catch (error) {
+      alert("登録エラー: " + error.message);
+    }
+  };
+</script>
+
+</body>
+</html>
