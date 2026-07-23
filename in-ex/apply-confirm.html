@@ -1,0 +1,5 @@
+const urlParams = new URLSearchParams(window.location.search);
+const examNumber = urlParams.get("examNumber");
+
+document.getElementById("examNumber").innerText = examNumber;
+<p>あなたの受験番号：<strong id="examNumber"></strong></p>
