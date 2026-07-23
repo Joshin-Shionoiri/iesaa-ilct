@@ -18,8 +18,13 @@
   button {
     width:100%; padding:14px; background:#004b9b; color:#fff;
     font-size:20px; border:none; border-radius:8px; cursor:pointer;
+    margin-bottom:15px;
   }
   button:hover { background:#003b7a; }
+  .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
+  .github-btn { background:#333; color:#fff; }
+  .yahoo-btn { background:#6001d2; color:#fff; }
+  .anon-btn { background:#555; color:#fff; }
 </style>
 </head>
 <body>
@@ -27,47 +32,63 @@
 <div class="box">
   <h2>新規登録（ILCT 受験者）</h2>
 
+  <!-- ▼ メール登録 -->
   <input id="name" placeholder="氏名">
   <input id="email" placeholder="メールアドレス">
   <input id="password" type="password" placeholder="パスワード（6文字以上）">
+  <button id="signupBtn">メールで登録</button>
 
-  <button id="signupBtn">登録する</button>
+  <hr style="margin:30px 0;">
+
+  <!-- ▼ 電話番号登録 -->
+  <input id="phone" placeholder="電話番号（例：09012345678）">
+  <button id="smsBtn">SMSコード送信</button>
+  <div id="recaptcha-container"></div>
+
+  <input id="smsCode" placeholder="SMS認証コード">
+  <button id="verifyBtn">電話番号で登録</button>
+
+  <hr style="margin:30px 0;">
+
+  <!-- ▼ OAuth 登録 -->
+  <button class="google-btn" id="googleSignupBtn">Googleで登録</button>
+  <button class="github-btn" id="githubSignupBtn">GitHubで登録</button>
+  <button class="yahoo-btn" id="yahooSignupBtn">Yahoo!で登録</button>
+  <button class="anon-btn" id="anonSignupBtn">匿名登録（テスト用）</button>
 </div>
 
 <script type="module">
   import { auth, db } from "./firebase.js";
   import {
     createUserWithEmailAndPassword,
-    updateProfile
+    updateProfile,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    GoogleAuthProvider,
+    GithubAuthProvider,
+    OAuthProvider,
+    signInWithPopup,
+    signInAnonymously,
+    onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-  import {
-    doc,
-    setDoc
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-  /* ▼ 日本語エラーメッセージ辞書 ▼ */
-  const errorMessages = {
-    "auth/email-already-in-use": "このメールアドレスは既に登録されています。",
-    "auth/invalid-email": "メールアドレスの形式が正しくありません。",
-    "auth/weak-password": "パスワードが弱すぎます（6文字以上必要）。",
-    "auth/network-request-failed": "通信エラーが発生しました。ネット環境をご確認ください。",
-    "default": "登録に失敗しました。入力内容をご確認ください。"
-  };
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
+  /* ▼ reCAPTCHA */
+  const appVerifier = new RecaptchaVerifier(auth, "recaptcha-container");
+
+  /* ▼ メール登録 */
   document.getElementById("signupBtn").onclick = async () => {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
     try {
-      /* ▼ Firebase Auth に登録 ▼ */
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      /* ▼ displayName に氏名を保存 ▼ */
       await updateProfile(user, { displayName: name });
 
-      /* ▼ Firestore にユーザー情報を保存 ▼ */
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         name,
@@ -75,14 +96,100 @@
         created_at: new Date()
       });
 
-      /* ▼ 登録完了 → ダッシュボードへ ▼ */
       window.location.href = "dashboard.html";
-
     } catch (error) {
-      const msg = errorMessages[error.code] || errorMessages["default"];
-      window.location.href = `error.html?msg=${encodeURIComponent(msg)}`;
+      alert("登録エラー: " + error.message);
     }
   };
+
+  /* ▼ SMSコード送信 */
+  let confirmationResult;
+
+  document.getElementById("smsBtn").onclick = async () => {
+    const phone = "+81" + document.getElementById("phone").value.slice(1);
+
+    try {
+      confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
+      alert("SMSコードを送信しました");
+    } catch (error) {
+      alert("SMS送信エラー: " + error.message);
+    }
+  };
+
+  /* ▼ 電話番号登録 */
+  document.getElementById("verifyBtn").onclick = async () => {
+    const code = document.getElementById("smsCode").value;
+
+    try {
+      const result = await confirmationResult.confirm(code);
+      const user = result.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        phone: user.phoneNumber,
+        created_at: new Date()
+      });
+
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert("電話番号登録エラー: " + error.message);
+    }
+  };
+
+  /* ▼ Google登録 */
+  document.getElementById("googleSignupBtn").onclick = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      alert("Google登録エラー: " + error.message);
+    }
+  };
+
+  /* ▼ GitHub登録 */
+  document.getElementById("githubSignupBtn").onclick = async () => {
+    const provider = new GithubAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      alert("GitHub登録エラー: " + error.message);
+    }
+  };
+
+  /* ▼ Yahoo登録 */
+  document.getElementById("yahooSignupBtn").onclick = async () => {
+    const provider = new OAuthProvider('yahoo.com');
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      alert("Yahoo登録エラー: " + error.message);
+    }
+  };
+
+  /* ▼ 匿名登録 */
+  document.getElementById("anonSignupBtn").onclick = async () => {
+    try {
+      await signInAnonymously(auth);
+    } catch (error) {
+      alert("匿名登録エラー: " + error.message);
+    }
+  };
+
+  /* ▼ ログイン後共通処理 */
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: user.displayName || null,
+        email: user.email || null,
+        phone: user.phoneNumber || null,
+        provider: user.providerData[0].providerId,
+        created_at: new Date()
+      }, { merge: true });
+
+      window.location.href = "dashboard.html";
+    }
+  });
 </script>
 
 </body>
