@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ILCT 管理者ログイン</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
+  .box { max-width:500px; margin:80px auto; background:#fff; padding:40px;
+         border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  input { width:100%; padding:14px; margin-bottom:20px; font-size:18px; }
+  button { width:100%; padding:14px; background:#004b9b; color:#fff;
+           font-size:20px; border:none; border-radius:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>管理者ログイン</h2>
+
+  <input id="email" placeholder="メールアドレス">
+  <input id="password" type="password" placeholder="パスワード">
+
+  <button id="loginBtn">ログイン</button>
+</div>
+
+<script type="module">
+  import { auth } from "./firebase.js";
+  import { signInWithEmailAndPassword } 
+    from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+  document.getElementById("loginBtn").onclick = async () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "admin-menu.html";
+    } catch (error) {
+      alert("ログインエラー: " + error.message);
+    }
+  };
+</script>
+
+</body>
+</html>
