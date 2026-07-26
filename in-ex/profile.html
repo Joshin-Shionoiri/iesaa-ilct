@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>プロフィール編集｜ILCT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
+  .box {
+    max-width:500px; margin:60px auto; background:#fff; padding:40px;
+    border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  }
+  h2 { text-align:center; margin-bottom:30px; }
+  label { display:block; margin-bottom:8px; font-size:18px; }
+  input {
+    width:100%; padding:14px; margin-bottom:20px;
+    font-size:18px; border:1px solid #ccc; border-radius:8px;
+  }
+  button {
+    width:100%; padding:14px; background:#004b9b; color:#fff;
+    font-size:20px; border:none; border-radius:8px; cursor:pointer;
+    margin-bottom:20px;
+  }
+  button:hover { background:#003b7a; }
+  .logout-btn { background:#b30000; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>プロフィール編集</h2>
+
+  <label>氏名</label>
+  <input id="name">
+
+  <label>メールアドレス（変更不可）</label>
+  <input id="email" disabled>
+
+  <button id="saveBtn">変更を保存</button>
+
+  <hr style="margin:30px 0;">
+
+  <label>新しいパスワード</label>
+  <input id="newPassword" type="password" placeholder="新しいパスワード">
+
+  <button id="passwordBtn">パスワードを変更</button>
+
+  <button class="logout-btn" id="logoutBtn">ログアウト</button>
+</div>
+
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import {
+    onAuthStateChanged,
+    updateProfile,
+    updatePassword,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+  import {
+    doc,
+    getDoc,
+    setDoc
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  /* ▼ ログイン状態チェック */
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Firestore からユーザー情報取得
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      document.getElementById("name").value = data.name || "";
+      document.getElementById("email").value = data.email || user.email;
+    } else {
+      // Firestore にまだデータがない場合
+      document.getElementById("name").value = user.displayName || "";
+      document.getElementById("email").value = user.email;
+    }
+  });
+
+  /* ▼ プロフィール保存（氏名のみ） */
+  document.getElementById("saveBtn").onclick = async () => {
+    const user = auth.currentUser;
+    const name = document.getElementById("name").value.trim();
+
+    try {
+      await updateProfile(user, { displayName: name });
+
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email: user.email,
+        updated_at: new Date()
+      }, { merge: true });
+
+      alert("プロフィールを更新しました");
+    } catch (error) {
+      alert("更新エラー: " + error.message);
+    }
+  };
+
+  /* ▼ パスワード変更 */
+  document.getElementById("passwordBtn").onclick = async () => {
+    const user = auth.currentUser;
+    const newPassword = document.getElementById("newPassword").value;
+
+    try {
+      await updatePassword(user, newPassword);
+      alert("パスワードを変更しました");
+    } catch (error) {
+      alert("パスワード変更エラー: " + error.message);
+    }
+  };
+
+  /* ▼ ログアウト */
+  document.getElementById("logoutBtn").onclick = async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+  };
+</script>
+
+</body>
+</html>
