@@ -5,115 +5,120 @@
 <title>ILCT 受験者ダッシュボード</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body { font-family:"Yu Gothic"; background:#eef2f7; margin:0; }
+  body { margin:0; font-family:"Yu Gothic"; background:#eef2f7; }
+
   .box {
-    max-width:600px; margin:60px auto; background:#fff; padding:40px;
-    border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15);
+    max-width:900px;
+    margin:40px auto;
+    background:#fff;
+    padding:40px;
+    border-radius:12px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.15);
   }
-  h2 { text-align:center; margin-bottom:30px; }
-  .info-box {
-    padding:20px; border:1px solid #ccc; border-radius:8px; margin-bottom:20px;
-    background:#fafafa;
-  }
-  button {
-    width:100%; padding:14px; background:#004b9b; color:#fff;
-    font-size:20px; border:none; border-radius:8px; cursor:pointer;
+
+  h2 { font-size:28px; margin-bottom:20px; color:#004b9b; }
+
+  table {
+    width:100%;
+    border-collapse:collapse;
     margin-top:20px;
   }
-  button:hover { background:#003b7a; }
-  .logout-btn { background:#b30000; }
+  th, td {
+    border:1px solid #ccc;
+    padding:12px;
+    font-size:18px;
+  }
+  th { background:#004b9b; color:#fff; }
+
+  .btn {
+    display:inline-block;
+    padding:14px 28px;
+    margin-top:20px;
+    font-size:20px;
+    background:#004b9b;
+    color:#fff;
+    border-radius:8px;
+    text-decoration:none;
+    transition:0.2s;
+  }
+  .btn:hover { background:#003b7a; transform:translateY(-3px); }
+
+  footer {
+    text-align:center;
+    padding:30px;
+    margin-top:40px;
+    background:#f5f5f5;
+    border-top:1px solid #ddd;
+  }
+  footer a {
+    color:#004b9b;
+    font-size:18px;
+    text-decoration:none;
+  }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <h2>ILCT 受験者ダッシュボード</h2>
+  <h2>受験者ダッシュボード</h2>
 
-  <!-- ▼ 基本情報 -->
-  <div class="info-box">
-    <h3>あなたの情報</h3>
-    <p><strong>氏名：</strong> <span id="name"></span></p>
-    <p><strong>メール：</strong> <span id="email"></span></p>
-    <p><strong>ログイン方法：</strong> <span id="provider"></span></p>
-  </div>
+  <p style="font-size:20px;">
+    ここでは、あなたが申し込んだ ILCT の受験情報を確認できます。
+  </p>
 
-  <!-- ▼ 受験申し込み一覧 -->
-  <div class="info-box">
-    <h3>受験申し込み一覧</h3>
-    <div id="applications"></div>
-  </div>
+  <a href="#form" class="btn">受験申し込みフォームを開く</a>
 
-  <button onclick="location.href='profile.html'">プロフィール編集</button>
-  <button class="logout-btn" id="logoutBtn">ログアウト</button>
+  <h2 style="margin-top:40px;">申込履歴</h2>
+
+  <table id="table">
+    <thead>
+      <tr>
+        <th>氏名</th>
+        <th>メール</th>
+        <th>試験名</th>
+        <th>試験日</th>
+        <th>申込日時</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
-<script type="module">
-  import { auth, db } from "./firebase.js";
-  import {
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+<!-- ▼ Google Forms 埋め込み ▼ -->
+<div class="box" id="form">
+  <h2>受験申し込みフォーム</h2>
 
-  import {
-    collection,
-    query,
-    where,
-    getDocs,
-    doc,
-    getDoc
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc3z_rHsyrUm3delOBmAfoyxnTF3omrP2GqU95-AHlIKWY7JQ/viewform?embedded=true"
+          width="100%" height="1600" frameborder="0" marginheight="0" marginwidth="0">
+    読み込んでいます…
+  </iframe>
+</div>
 
-  /* ▼ ログインチェック */
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
+<script>
+  const data = JSON.parse(localStorage.getItem("applications") || "[]");
+  const tbody = document.querySelector("#table tbody");
 
-    // ▼ 基本情報表示
-    document.getElementById("name").textContent = user.displayName || "未設定";
-    document.getElementById("email").textContent = user.email;
-    document.getElementById("provider").textContent = user.providerData[0].providerId;
-
-    // ▼ Firestore の users コレクションから追加情報取得
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists()) {
-      const data = userDoc.data();
-      if (data.name) document.getElementById("name").textContent = data.name;
-    }
-
-    // ▼ 受験申し込み一覧取得
-    const q = query(
-      collection(db, "applications"),
-      where("uid", "==", user.uid)
-    );
-
-    const snapshot = await getDocs(q);
-    const box = document.getElementById("applications");
-
-    if (snapshot.empty) {
-      box.innerHTML = "<p>まだ申し込みはありません。</p>";
-      return;
-    }
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      box.innerHTML += `
-        <div style="padding:15px; border:1px solid #ccc; margin-bottom:10px; border-radius:8px;">
-          <p><strong>試験名：</strong> ${data.exam_name}</p>
-          <p><strong>試験日：</strong> ${data.date}</p>
-          <p><strong>ステータス：</strong> ${data.status}</p>
-        </div>
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">申込履歴はありません</td></tr>`;
+  } else {
+    data.forEach(row => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${row.name}</td>
+          <td>${row.email}</td>
+          <td>${row.exam}</td>
+          <td>${row.date}</td>
+          <td>${row.timestamp}</td>
+        </tr>
       `;
     });
-  });
-
-  /* ▼ ログアウト */
-  document.getElementById("logoutBtn").onclick = async () => {
-    await signOut(auth);
-    window.location.href = "login.html";
-  };
+  }
 </script>
+
+<footer>
+  <a href="kiyaku.html">受験規約（ILCT）</a><br><br>
+  <a href="https://www.iesaa.jp/特定商取引法に基づく表記">特定商取引法に基づく表記</a>
+</footer>
 
 </body>
 </html>
