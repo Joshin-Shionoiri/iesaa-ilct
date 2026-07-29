@@ -10,9 +10,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <style>
-  body { margin:0; font-family:"Yu Gothic", Arial, sans-serif; background:#000; color:#fff; }
+  body { margin:0; font-family:"Yu Gothic", Arial, sans-serif; background:#fff; color:#333; }
 
-  /* ▼ Apple風ヒーロー動画 ▼ */
+  /* ▼ ヒーロー動画（絶対に残す） ▼ */
   .hero {
     position: relative;
     width: 100%;
@@ -32,88 +32,93 @@
     transform: translate(-50%, -50%);
     font-size: 48px;
     font-weight: bold;
+    color:#fff;
     opacity: 0;
   }
 
   /* ▼ セクション ▼ */
   .section {
-    max-width: 1100px;
-    margin: 120px auto;
-    padding: 0 20px;
-    opacity: 0;
-    transform: translateY(40px);
+    max-width:1100px;
+    margin:120px auto;
+    padding:0 20px;
+    opacity:0;
+    transform:translateY(40px);
   }
 
   .section h2 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    color:#00aaff;
+    font-size:36px;
+    margin-bottom:20px;
+    color:#007aff;
   }
 
   .cols {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 40px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:40px;
   }
 
   .col {
-    flex: 1 1 300px;
-    background:#111;
+    flex:1 1 300px;
+    background:#f8f8f8;
     padding:30px;
     border-radius:12px;
-    box-shadow:0 8px 25px rgba(255,255,255,0.1);
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
     opacity:0;
-    transform: translateY(40px);
+    transform:translateY(40px);
   }
 
   .col h3 {
-    font-size: 26px;
-    color:#00aaff;
-    margin-bottom: 12px;
+    font-size:26px;
+    color:#007aff;
+    margin-bottom:12px;
   }
 
   .col ul {
-    padding-left: 22px;
-    margin: 0;
+    padding-left:22px;
+    margin:0;
     font-size:20px;
     line-height:1.8;
   }
 
-  /* ▼ ボタン ▼ */
+  .icon {
+    font-size:50px;
+    margin-bottom:20px;
+    color:#007aff;
+  }
+
   .btn {
     display:inline-block;
     padding:14px 28px;
     margin:10px;
     font-size:22px;
-    background:#00aaff;
+    background:#007aff;
     color:#fff;
     border-radius:8px;
     text-decoration:none;
     transition:0.2s;
   }
   .btn:hover {
-    background:#0088cc;
+    background:#005fcc;
     transform:translateY(-3px);
   }
 
-  /* ▼ フッター ▼ */
   footer {
     text-align:center;
     padding:40px;
-    font-size:18px;
-    color:#ccc;
-    background:#111;
     margin-top:120px;
+    background:#f5f5f5;
+    border-top:1px solid #ddd;
   }
   footer a {
-    color:#00aaff;
+    color:#007aff;
+    font-size:18px;
     text-decoration:none;
   }
 </style>
 </head>
 <body>
 
-<!-- ▼ Apple風ヒーロー動画 ▼ -->
+<!-- ▼ Apple風ヒーロー動画（絶対に残す） ▼ -->
 <div class="hero">
   <video autoplay muted loop playsinline>
     <source src="topmov.mp4" type="video/mp4">
@@ -122,19 +127,20 @@
 </div>
 
 <!-- ▼ ILCTとは ▼ -->
-<div class="section" id="about">
-  <h2>国際学習能力検定とは</h2>
+<div class="section">
+  <h2>ILCTとは</h2>
   <p style="font-size:22px; line-height:1.8;">
     国際学習能力検定は、国際社会を理解し、自分の力で考える「学習力」を育てる教育検定です。
   </p>
 </div>
 
-<!-- ▼ 目的・内容・試験形式 ▼ -->
+<!-- ▼ 検定の特徴 ▼ -->
 <div class="section">
   <h2>検定の特徴</h2>
 
   <div class="cols">
     <div class="col">
+      <div class="icon">🎯</div>
       <h3>目的</h3>
       <ul>
         <li>国際社会の基礎理解を深める</li>
@@ -144,6 +150,7 @@
     </div>
 
     <div class="col">
+      <div class="icon">🌍</div>
       <h3>内容（出題範囲）</h3>
       <ul>
         <li>基礎学力</li>
@@ -154,6 +161,7 @@
     </div>
 
     <div class="col">
+      <div class="icon">📝</div>
       <h3>試験形式</h3>
       <ul>
         <li>マーク式＋記述式</li>
@@ -164,12 +172,24 @@
   </div>
 </div>
 
-<!-- ▼ サンプル問題案内 ▼ -->
+<!-- ▼ 級構成 ▼ -->
+<div class="section">
+  <h2>級構成（G1〜G6）</h2>
+
+  <div class="cols">
+    <div class="col"><h3>G1（基礎）</h3><p>小学生高学年〜中学生向け</p></div>
+    <div class="col"><h3>G2（標準）</h3><p>中学生〜高校生向け</p></div>
+    <div class="col"><h3>G3（応用）</h3><p>高校生向け</p></div>
+    <div class="col"><h3>G4（発展）</h3><p>国際課題を深く分析</p></div>
+    <div class="col"><h3>G5（高度）</h3><p>改善策を論理的に提案</p></div>
+    <div class="col"><h3>G6（最上級）</h3><p>国際的視点で解決策を構築</p></div>
+  </div>
+</div>
+
+<!-- ▼ サンプル問題 ▼ -->
 <div class="section">
   <h2>サンプル問題</h2>
-  <p style="font-size:22px;">
-    各級のサンプル問題は検定詳細ページで公開しています。
-  </p>
+  <p style="font-size:22px;">各級のサンプル問題は検定詳細ページで公開しています。</p>
   <a href="kentei-detail.html" class="btn">検定詳細ページを見る</a>
 </div>
 
@@ -179,7 +199,15 @@
 
   <a href="https://www.portal.ilct.iesaa.org/in-ex/signup.html" class="btn">新規登録</a>
   <a href="https://www.portal.ilct.iesaa.org/in-ex/login.html" class="btn">ログイン</a>
-  <a href="kiyaku.html" class="btn" style="background:#00cc88;">受験規約（必読）</a>
+  <a href="dashboard.html" class="btn" style="background:#00cc88;">受験者ダッシュボード</a>
+  <a href="kiyaku.html" class="btn" style="background:#ff8800;">受験規約（必読）</a>
+</div>
+
+<!-- ▼ 申し込みフォーム ▼ -->
+<div class="section">
+  <h2>受験申し込み</h2>
+  <p style="font-size:22px;">申し込みは Google Forms から行えます。</p>
+  <a href="dashboard.html#form" class="btn">申し込みフォームを開く</a>
 </div>
 
 <footer>
@@ -191,9 +219,9 @@
 </footer>
 
 <script>
-  gsap.from(".hero-title", {
-    opacity:0,
-    y:40,
+  gsap.to(".hero-title", {
+    opacity:1,
+    y:0,
     duration:1.6,
     ease:"power3.out"
   });
