@@ -17,6 +17,9 @@
   .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
   a { display:block; text-align:center; margin-top:10px; color:#004b9b; }
 </style>
+
+<!-- SupabaseのJavaScriptライブラリを読み込む -->
+<script src="https://jsdelivr.net"></script>
 </head>
 <body>
 
@@ -36,35 +39,46 @@
   <a href="reset-password.html">パスワードを忘れた方はこちら</a>
 </div>
 
-<script type="module">
-  import { auth } from "./firebase.js";
-  import { 
-    signInWithEmailAndPassword, 
-    GoogleAuthProvider, 
-    signInWithPopup 
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+<script>
+  // Supabaseの初期化設定
+  const SUPABASE_URL = 'https://ivxvxztzdpjeqodhvyaa.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_ti42KqSQWoNeNHdnz_9S6Q_DuvPMqMm';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* ▼ メールログイン */
+  /* ▼ メールログインの処理 */
   document.getElementById("loginBtn").onclick = async () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html";
-    } catch (error) {
+    if (!email || !password) {
+      alert("メールアドレスとパスワードを入力してください。");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
       alert("ログインエラー: " + error.message);
+    } else {
+      // 同じフォルダ内（in-ex/）のdashboard.htmlに移動
+      window.location.href = "dashboard.html";
     }
   };
 
-  /* ▼ Googleログイン */
+  /* ▼ Googleログインの処理 */
   document.getElementById("googleLoginBtn").onclick = async () => {
-    const provider = new GoogleAuthProvider();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // ログイン成功後に移動するマイページの絶対URL（in-ex/を付与）
+        redirectTo: 'https://github.io'
+      }
+    });
 
-    try {
-      await signInWithPopup(auth, provider);
-      window.location.href = "dashboard.html";
-    } catch (error) {
+    if (error) {
       alert("Googleログインエラー: " + error.message);
     }
   };
