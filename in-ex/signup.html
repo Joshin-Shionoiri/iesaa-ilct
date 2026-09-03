@@ -23,6 +23,9 @@
   button:hover { background:#003b7a; }
   .google-btn { background:#fff; color:#444; border:1px solid #ccc; }
 </style>
+
+<!-- 1. SupabaseのJavaScriptライブラリを読み込む -->
+<script src="https://jsdelivr.net"></script>
 </head>
 <body>
 
@@ -41,65 +44,95 @@
   <button class="google-btn" id="googleSignupBtn">Googleで登録</button>
 </div>
 
-<script type="module">
-  import { auth, db } from "./firebase.js";
-  import {
-    createUserWithEmailAndPassword,
-    updateProfile,
-    GoogleAuthProvider,
-    signInWithPopup,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+<script>
+  // 2. Supabaseの初期化設定
+  const SUPABASE_URL = 'https://ivxvxztzdpjeqodhvyaa.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_ti42KqSQWoNeNHdnz_9S6Q_DuvPMqMm';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-
-  /* ▼ メール登録 */
+  /* ▼ メール登録の処理 */
   document.getElementById("signupBtn").onclick = async () => {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
+    if (!name || !email || !password) {
+      alert("すべての項目を入力してください。");
+      return;
+    }
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      await updateProfile(user, { displayName: name });
-
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name,
-        email,
-        created_at: new Date()
+      // Supabaseにアカウントを作成（同時にメタデータとして氏名を保存）
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            display_name: name
+          }
+        }
       });
 
-      window.location.href = "dashboard.html";
+      if (error) throw error;
+
+      const user = data.user;
+
+      if (user) {
+        // データベースの users テーブルにプロフィール情報を保存
+        const { error: dbError } = await supabase
+          .from('users')
+          .upsert({
+            uid: user.uid || user.id, // Supabaseのユーザー識別子(id)
+            name: name,
+            email: email,
+            created_at: new Date().toISOString()
+          });
+
+        if (dbError) throw dbError;
+
+        alert('登録確認メールを送信しました。メール内のリンクをクリックして認証を完了してください。');
+        window.location.href = "login.html";
+      }
     } catch (error) {
       alert("登録エラー: " + error.message);
     }
   };
 
-  /* ▼ Google登録 */
+  /* ▼ Google登録の処理 */
   document.getElementById("googleSignupBtn").onclick = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // ログイン成功後に移動するマイページの絶対URL
+        redirectTo: 'https://github.io'
+      }
+    });
+
+    if (error) {
       alert("Google登録エラー: " + error.message);
     }
   };
 
-  /* ▼ ログイン後共通処理 */
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name: user.displayName || null,
-        email: user.email || null,
-        provider: user.providerData[0].providerId,
-        created_at: new Date()
-      }, { merge: true });
+  /* ▼ ログイン・認証状態の変更を監視する処理 */
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      const user = session.user;
+      
+      // Googleログイン経由などの場合、ここでusersテーブルにデータを自動同期・保存
+      const { error: dbError } = await supabase
+        .from('users')
+        .upsert({
+          uid: user.id,
+          name: user.user_metadata.full_name || user.user_metadata.display_name || null,
+          email: user.email || null,
+          provider: user.app_metadata.provider || 'unknown',
+          created_at: new Date().toISOString()
+        });
 
-      window.location.href = "dashboard.html";
+      if (!dbError) {
+        // 保存に成功、または既にデータがあればマイページへ移動
+        window.location.href = "dashboard.html";
+      }
     }
   });
 </script>
